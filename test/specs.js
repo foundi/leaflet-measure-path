@@ -129,6 +129,16 @@ describe('leaflet-measure-path', function() {
                 expect(circle.getLatLng().lat).to.be(57.69);
                 expect(circle.getLatLng().lng).to.be(11.91);
             })
+
+            it('should not break method chaining', function() {
+                var circle = L.circle([57.69, 11.89], 200)
+                    .addTo(map);
+                circle.setLatLng([57.69, 11.91])
+                    .setRadius(300);
+                expect(circle.getLatLng().lat).to.be(57.69);
+                expect(circle.getLatLng().lng).to.be(11.91);
+                expect(circle.getRadius()).to.be(300);
+            })
         });
 
         describe('#showOnHover', function() {

@@ -180,9 +180,7 @@
         if (!hookAfter) {
             return function() {
                 var originalReturnValue = method.apply(this, arguments);
-                var args = Array.prototype.slice.call(arguments)
-                args.push(originalReturnValue);
-                return fn.apply(this, args);
+                return fn.apply(this, [originalReturnValue]);
             }
         } else {
             return function() {
