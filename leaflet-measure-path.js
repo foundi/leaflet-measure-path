@@ -311,7 +311,13 @@
             if (isPolygon && options.showArea && latLngs.length > 2) {
                 formatter = options.formatArea || L.bind(this.formatArea, this);
                 var area = ringArea(latLngs);
-                L.marker.measurement(this.getBounds().getCenter(),
+                /**
+                 * Leaflet.Editable do not refresh polygon._bounds for performance reasons,
+                 * so use new bounds from latlngs of polygon.
+                 * https://github.com/Leaflet/Leaflet.Editable/issues/110
+                 */
+                var newBounds = L.latLngBounds(this.getLatLngs());
+                L.marker.measurement(newBounds.getCenter(),
                     formatter(area), options.lang.totalArea, 0, options)
                     .addTo(this._measurementLayer);
             }
