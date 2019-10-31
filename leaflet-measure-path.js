@@ -197,6 +197,7 @@
             this._measurementOptions = L.extend({
                 showOnHover: (options && options.showOnHover) || false,
                 minPixelDistance: 30,
+                showOnMinPixelDistance: false,
                 showDistances: true,
                 showArea: true,
                 lang: {
@@ -293,11 +294,14 @@
 
                     pixelDist = p1.distanceTo(p2);
 
-                    if (pixelDist >= options.minPixelDistance) {
-                        L.marker.measurement(
+                    if (pixelDist >= options.minPixelDistance || options.showOnMinPixelDistance) {
+                        var measurement = L.marker.measurement(
                             this._map.layerPointToLatLng([(p1.x + p2.x) / 2, (p1.y + p2.y) / 2]),
                             formatter(dist), options.lang.segmentLength, this._getRotation(ll1, ll2), options)
                             .addTo(this._measurementLayer);
+                        if (pixelDist < options.minPixelDistance) {
+                            L.DomUtil.addClass(measurement._element, 'margin-on-min-distance');
+                        }
                     }
                 }
 
