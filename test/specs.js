@@ -47,7 +47,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -65,7 +65,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -84,7 +84,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -96,12 +96,33 @@ describe('leaflet-measure-path', function() {
             });
         });
 
+        describe('#showOnMinPixelDistance', function() {
+            it('should show measurements on min distance', function() {
+                var polygon = L.polygon([
+                        // There is two segment longer than minPixelDistance.
+                        [57.69, 11.89],
+                        [57.697, 11.88],
+                        [57.71, 11.89],
+                    ],
+                    {
+                        showMeasurements: true,
+                        measurementOptions: {
+                            minPixelDistance: 100,
+                            showOnMinPixelDistance: true
+                        }
+                    })
+                    .addTo(map);
+
+                expect(document.querySelectorAll('.margin-on-min-distance').length).to.be(2);
+            })
+        });
+
         it('should add measurements', function() {
             var polygon = L.polygon([
                     [57.69, 11.89],
                     [57.697, 11.88],
                     [57.71, 11.89],
-                ], {showMeasurements: true, measurementOptions: { minDistance: 0 }})
+                ], {showMeasurements: true, measurementOptions: { minPixelDistance: 0 }})
                 .addTo(map);
 
             expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(4);
@@ -112,7 +133,7 @@ describe('leaflet-measure-path', function() {
                     [57.69, 11.89],
                     [57.697, 11.88],
                     [57.71, 11.89],
-                ], {showMeasurements: true, measurementOptions: { minDistance: 0 }})
+                ], {showMeasurements: true, measurementOptions: { minPixelDistance: 0 }})
                 .addTo(map);
 
             map.removeLayer(polygon);
@@ -124,7 +145,7 @@ describe('leaflet-measure-path', function() {
                     [57.69, 11.89],
                     [57.697, 11.88],
                     [57.71, 11.89],
-                ], {showMeasurements: true, measurementOptions: { minDistance: 0 }})
+                ], {showMeasurements: true, measurementOptions: { minPixelDistance: 0 }})
                 .addTo(map);
 
             polygon._latlngs = [
@@ -137,7 +158,7 @@ describe('leaflet-measure-path', function() {
             polygon.updateMeasurements();
             var measurements=document.querySelectorAll('.leaflet-measure-path-measurement');
             expect(measurements.length).to.be(6);
-            expect(measurements[5].style.transform).to.be('translate3d(482px, 50px, 0px) rotate(0rad)');
+            expect(measurements[5].style.transform).to.be('translate3d(706px, 50px, 0px) rotate(0rad)');
         });
     })
 
@@ -168,7 +189,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -182,7 +203,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -197,7 +218,7 @@ describe('leaflet-measure-path', function() {
                     {
                         showMeasurements: true,
                         measurementOptions: {
-                            minDistance: 0,
+                            minPixelDistance: 0,
                             showOnHover: true
                         }
                     })
@@ -213,7 +234,7 @@ describe('leaflet-measure-path', function() {
             L.circle([57.69, 11.89], 200,
                 {
                     showMeasurements: true,
-                    measurementOptions: { minDistance: 0 }
+                    measurementOptions: { minPixelDistance: 0 }
                 })
                 .addTo(map);
 
@@ -224,7 +245,7 @@ describe('leaflet-measure-path', function() {
             var circle = L.circle([57.69, 11.89], 200,
                 {
                     showMeasurements: true,
-                    measurementOptions: { minDistance: 0 }
+                    measurementOptions: { minPixelDistance: 0 }
                 })
                 .addTo(map);
 
