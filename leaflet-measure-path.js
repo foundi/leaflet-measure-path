@@ -24,7 +24,7 @@
             this._map = map;
             var pane = this.getPane ? this.getPane() : map.getPanes().markerPane;
             var el = this._element = L.DomUtil.create('div', 'leaflet-zoom-animated leaflet-measure-path-measurement', pane);
-            var inner = L.DomUtil.create('div', '', el);
+            var inner = L.DomUtil.create('div', this.options.className, el);
             inner.title = this._title;
             inner.innerHTML = this._measurement;
 
