@@ -299,8 +299,14 @@
                             this._map.layerPointToLatLng([(p1.x + p2.x) / 2, (p1.y + p2.y) / 2]),
                             formatter(dist), options.lang.segmentLength, this._getRotation(ll1, ll2), options)
                             .addTo(this._measurementLayer);
+
                         if (pixelDist < options.minPixelDistance) {
                             L.DomUtil.addClass(measurement._element, 'margin-on-min-distance');
+                        }
+
+                        if(options.showVertex) {
+                            L.marker(ll1, options.vertexOptions).addTo(this._measurementLayer);
+                            L.marker(ll2, options.vertexOptions).addTo(this._measurementLayer);
                         }
                     }
                 }

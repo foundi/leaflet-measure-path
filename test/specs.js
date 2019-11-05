@@ -117,6 +117,26 @@ describe('leaflet-measure-path', function() {
             })
         });
 
+        describe('#showVertex', function() {
+            it('should show vertex', function() {
+                var polygon = L.polygon([
+                        [57.69, 11.89],
+                        [57.697, 11.88],
+                        [57.71, 11.89],
+                    ],
+                    {
+                        showMeasurements: true,
+                        measurementOptions: {
+                            minPixelDistance: 0,
+                            showVertex: true
+                        }
+                    })
+                    .addTo(map);
+
+                expect(document.querySelectorAll('.leaflet-marker-icon').length).to.be(6);
+            })
+        });
+
         it('should add measurements', function() {
             var polygon = L.polygon([
                     [57.69, 11.89],
