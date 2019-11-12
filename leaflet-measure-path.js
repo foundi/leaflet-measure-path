@@ -200,6 +200,7 @@
                 showOnMinPixelDistance: false,
                 showDistances: true,
                 showArea: true,
+                angleTolerance: 0,
                 lang: {
                     totalLength: 'Total length',
                     totalArea: 'Total area',
@@ -267,8 +268,10 @@
                 formatter,
                 ll1,
                 ll2,
+                center,
                 p1,
                 p2,
+                pCenter,
                 pixelDist,
                 dist;
 
@@ -278,25 +281,88 @@
                 latLngs = latLngs[0];
             }
 
+            var segments = [];
+            for (var i = 1, len = latLngs.length; (isPolygon && i <= len) || i < len; i++) {
+                ll1 = latLngs[i - 1];
+                ll2 = latLngs[i % len];
+                segments.push({
+                    ll1: ll1,
+                    ll2: ll2,
+                    dist: ll1.distanceTo(ll2),
+                    center: {
+                        lat: (ll1.lat + ll2.lat) / 2,
+                        lng: (ll1.lng + ll2.lng) / 2
+                    },
+                    angle: this._getAngle(ll1, ll2),
+                    merged: 1
+                })
+            }
+
+            function inTolerance(angle1, angle2, tolerance) {
+                /**
+                 * Check included angle of two segments whether in tolerance.
+                 * Use two angles of segments to calc included angle.
+                 */
+                return Math.abs(angle2 + angle1) < tolerance || // two internal angles
+                       Math.abs(angle2 - angle1) < tolerance || // one internal and one external angle
+                       Math.abs(180 - Math.abs(angle2 - angle1)) < tolerance; // two external angles
+            }
+
+            function mergeSegment(segment1, segment2) {
+                var sumDist = segment1.dist + segment2.dist;
+                segment1.center = {
+                    lat: (segment1.center.lat * segment1.dist + segment2.center.lat * segment2.dist) / sumDist,
+                    lng: (segment1.center.lng * segment1.dist + segment2.center.lng * segment2.dist) / sumDist,
+                },
+                segment1.ll2 = segment2.ll2,
+                segment1.dist += segment2.dist,
+                segment1.angle = segment2.angle,
+                segment1.merged = segment1.merged + segment2.merged;
+            }
+
+            var mergingSegment = segments[0];
+            var mergedSegments = [mergingSegment];
+            for (var i = 1; i < segments.length; i++) {
+                var segment = segments[i];
+                if (inTolerance(mergingSegment.angle, segment.angle, options.angleTolerance)) {
+                    mergeSegment(mergingSegment, segment);
+                    continue;
+                }
+                mergingSegment = segment;
+                mergedSegments.push(mergingSegment)
+            }
+            if (isPolygon) {
+                // Check first and last segment especially.
+                var segment1 = mergedSegments[0];
+                var segment2 = mergedSegments[mergedSegments.length - 1];
+                if(inTolerance(segment1.angle, segment2.angle, options.angleTolerance)) {
+                    mergeSegment(segment2, segment1);
+                    mergedSegments.shift();
+                }
+            }
+
             this._measurementLayer.clearLayers();
 
             if (this._measurementOptions.showDistances && latLngs.length > 1) {
                 formatter = this._measurementOptions.formatDistance || L.bind(this.formatDistance, this);
 
-                for (var i = 1, len = latLngs.length; (isPolygon && i <= len) || i < len; i++) {
-                    ll1 = latLngs[i - 1];
-                    ll2 = latLngs[i % len];
-                    dist = ll1.distanceTo(ll2);
-                    totalDist += dist;
+                for (var i = 0; i < mergedSegments.length; i++) {
+                    var segment = mergedSegments[i];
+                    ll1 = segment.ll1;
+                    ll2 = segment.ll2;
+                    center = segment.center;
+                    dist = segment.dist;
+                    totalDist += segment.dist;
 
                     p1 = this._map.latLngToLayerPoint(ll1);
                     p2 = this._map.latLngToLayerPoint(ll2);
+                    pCenter = this._map.latLngToLayerPoint(center);
 
                     pixelDist = p1.distanceTo(p2);
 
                     if (pixelDist >= options.minPixelDistance || options.showOnMinPixelDistance) {
                         var measurement = L.marker.measurement(
-                            this._map.layerPointToLatLng([(p1.x + p2.x) / 2, (p1.y + p2.y) / 2]),
+                            this._map.layerPointToLatLng(pCenter),
                             formatter(dist), options.lang.segmentLength, this._getRotation(ll1, ll2), options)
                             .addTo(this._measurementLayer);
 
@@ -333,6 +399,10 @@
             }
 
             return this;
+        },
+
+        _getAngle: function(ll1, ll2) {
+            return Math.atan2(ll2.lat - ll1.lat, ll2.lng - ll1.lng) * 180 / Math.PI;
         },
 
         _getRotation: function(ll1, ll2) {
