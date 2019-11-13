@@ -1,5 +1,7 @@
 .leaflet-measure-path-measurement {
     position: absolute;
+    top: 0;
+    left: 0;
     font-size: 10px;
     color: black;
     text-shadow: -1px  0 0 white,
@@ -19,6 +21,10 @@
     position: relative;
     margin-top: -25%;
     left: -50%;
+}
+
+.leaflet-measure-path-measurement > div[title="Total length"] {
+    left: 50%;
 }
 
 .leaflet-measure-path-measurement.margin-on-min-distance > div {

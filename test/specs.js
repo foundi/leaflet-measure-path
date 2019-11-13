@@ -117,6 +117,49 @@ describe('leaflet-measure-path', function() {
             })
         });
 
+        describe('#showVertex', function() {
+            it('should show vertex', function() {
+                var polygon = L.polygon([
+                        [57.69, 11.89],
+                        [57.697, 11.88],
+                        [57.71, 11.89],
+                    ],
+                    {
+                        showMeasurements: true,
+                        measurementOptions: {
+                            minPixelDistance: 0,
+                            showVertex: true
+                        }
+                    })
+                    .addTo(map);
+
+                expect(document.querySelectorAll('.leaflet-marker-icon').length).to.be(6);
+            })
+        });
+
+        describe('#angleTolerance', function() {
+            it('should merge segments whose angle in tolerance', function() {
+                var polygon = L.polygon([
+                        // There is two angle in tolernace.
+                        [57.69, 11.89],
+                        [57.697, 11.88],
+                        [57.71, 11.89],
+                        [57.71, 11.91],
+                        [57.69, 11.91]
+                    ],
+                    {
+                        showMeasurements: true,
+                        measurementOptions: {
+                            minPixelDistance: 0,
+                            angleTolerance: 60
+                        }
+                    })
+                    .addTo(map);
+
+                expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(4);
+            })
+        });
+
         it('should add measurements', function() {
             var polygon = L.polygon([
                     [57.69, 11.89],
