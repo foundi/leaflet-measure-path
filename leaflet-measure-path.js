@@ -298,34 +298,12 @@
                 })
             }
 
-            function inTolerance(angle1, angle2, tolerance) {
-                /**
-                 * Check included angle of two segments whether in tolerance.
-                 * Use two angles of segments to calc included angle.
-                 */
-                return Math.abs(angle2 + angle1) < tolerance || // two internal angles
-                       Math.abs(angle2 - angle1) < tolerance || // one internal and one external angle
-                       Math.abs(180 - Math.abs(angle2 - angle1)) < tolerance; // two external angles
-            }
-
-            function mergeSegment(segment1, segment2) {
-                var sumDist = segment1.dist + segment2.dist;
-                segment1.center = {
-                    lat: (segment1.center.lat * segment1.dist + segment2.center.lat * segment2.dist) / sumDist,
-                    lng: (segment1.center.lng * segment1.dist + segment2.center.lng * segment2.dist) / sumDist,
-                },
-                segment1.ll2 = segment2.ll2,
-                segment1.dist += segment2.dist,
-                segment1.angle = segment2.angle,
-                segment1.merged = segment1.merged + segment2.merged;
-            }
-
             var mergingSegment = segments[0];
             var mergedSegments = [mergingSegment];
             for (var i = 1; i < segments.length; i++) {
                 var segment = segments[i];
-                if (inTolerance(mergingSegment.angle, segment.angle, options.angleTolerance)) {
-                    mergeSegment(mergingSegment, segment);
+                if (this._inTolerance(mergingSegment.angle, segment.angle, options.angleTolerance)) {
+                    this._mergeSegment(mergingSegment, segment);
                     continue;
                 }
                 mergingSegment = segment;
@@ -335,8 +313,8 @@
                 // Check first and last segment especially.
                 var segment1 = mergedSegments[0];
                 var segment2 = mergedSegments[mergedSegments.length - 1];
-                if(inTolerance(segment1.angle, segment2.angle, options.angleTolerance)) {
-                    mergeSegment(segment2, segment1);
+                if(this._inTolerance(segment1.angle, segment2.angle, options.angleTolerance)) {
+                    this._mergeSegment(segment2, segment1);
                     mergedSegments.shift();
                 }
             }
@@ -399,6 +377,31 @@
             }
 
             return this;
+        },
+
+        _inTolerance: function(angle1, angle2, tolerance) {
+            /**
+             * Check included angle of two segments whether in tolerance.
+             * Use two angles of segments to calc included angle.
+             */
+            // remove direction and convert to positive angle
+            angle1 = angle1 > 0 ? angle1 : 180 - Math.abs(angle1);
+            angle2 = angle2 > 0 ? angle2 : 180 - Math.abs(angle2);
+            return Math.abs(angle2 + angle1) < tolerance || // two internal angles
+                   Math.abs(angle2 - angle1) < tolerance || // one internal and one external angle
+                   Math.abs(180 - Math.abs(angle2 - angle1)) < tolerance; // two external angles
+        },
+
+        _mergeSegment: function(segment1, segment2) {
+            var sumDist = segment1.dist + segment2.dist;
+            segment1.center = {
+                lat: (segment1.center.lat * segment1.dist + segment2.center.lat * segment2.dist) / sumDist,
+                lng: (segment1.center.lng * segment1.dist + segment2.center.lng * segment2.dist) / sumDist,
+            },
+            segment1.ll2 = segment2.ll2,
+            segment1.dist += segment2.dist,
+            segment1.angle = segment2.angle,
+            segment1.merged = segment1.merged + segment2.merged;
         },
 
         _getAngle: function(ll1, ll2) {
