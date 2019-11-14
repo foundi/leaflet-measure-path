@@ -140,7 +140,7 @@ describe('leaflet-measure-path', function() {
         describe('#angleTolerance', function() {
             it('should merge segments whose angle in tolerance', function() {
                 var polygon = L.polygon([
-                        // There is two angle in tolernace.
+                        // There is one angle in tolernace.
                         [57.69, 11.89],
                         [57.697, 11.88],
                         [57.71, 11.89],
@@ -157,6 +157,30 @@ describe('leaflet-measure-path', function() {
                     .addTo(map);
 
                 expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(4);
+            })
+
+            it('should merge segments whose angle in small tolerance', function() {
+                var polygon = L.polygon([
+                        // There is three angle in tolernace.
+                        [22.722, 120.2121],
+                        [22.7348, 120.1986],
+                        [22.747, 120.2104],
+                        [22.744, 120.2134],
+                        [22.7405, 120.217],
+                        [22.7374, 120.2201],
+                        [22.7345, 120.223],
+                        [22.7329, 120.2246],
+                    ],
+                    {
+                        showMeasurements: true,
+                        measurementOptions: {
+                            minPixelDistance: 0,
+                            angleTolerance: 15
+                        }
+                    })
+                    .addTo(map);
+
+                expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(5);
             })
         });
 
