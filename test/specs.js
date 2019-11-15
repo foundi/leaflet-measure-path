@@ -227,6 +227,22 @@ describe('leaflet-measure-path', function() {
             expect(measurements.length).to.be(6);
             expect(measurements[5].style.transform).to.be('translate3d(706px, 50px, 0px) rotate(0rad)');
         });
+
+        it('should update measurements with latlngs of mutiple polygons', function() {
+            var polygon = L.polygon([
+                    [[57.69, 11.89],
+                     [57.697, 11.88],
+                     [57.71, 11.89]],
+                    [[58.69, 11.89],
+                     [58.697, 11.88],
+                     [58.71, 11.89]]
+                ], {showMeasurements: true, measurementOptions: { minPixelDistance: 0 }})
+                .addTo(map);
+
+            polygon.updateMeasurements();
+            var measurements=document.querySelectorAll('.leaflet-measure-path-measurement');
+            expect(measurements.length).to.be(8);
+        });
     })
 
     describe('Circle', function() {

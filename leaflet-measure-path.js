@@ -211,7 +211,9 @@
             this._measurementLayer = L.layerGroup().addTo(this._map);
             this.updateMeasurements();
 
-            this._map.on('zoomend', this.updateMeasurements, this);
+            this._map.on('zoomend', function() {
+                this.updateMeasurements();
+            }, this);
 
             return this;
         },
@@ -219,7 +221,9 @@
         hideMeasurements: function() {
             if (!this._map) return this;
 
-            this._map.off('zoomend', this.updateMeasurements, this);
+            this._map.off('zoomend', function() {
+                this.updateMeasurements();
+            }, this);
 
             if (!this._measurementLayer) return this;
             this._map.removeLayer(this._measurementLayer);
@@ -258,10 +262,11 @@
         formatDistance: formatDistance,
         formatArea: formatArea,
 
-        updateMeasurements: function() {
+        updateMeasurements: function(latLngs) {
             if (!this._measurementLayer) return this;
+            if (!latLngs) this._measurementLayer.clearLayers();
 
-            var latLngs = this.getLatLngs(),
+            var latLngs = latLngs ? latLngs : this.getLatLngs(),
                 isPolygon = this instanceof L.Polygon,
                 options = this._measurementOptions,
                 totalDist = 0,
@@ -276,9 +281,11 @@
                 dist;
 
             if (latLngs && latLngs.length && L.Util.isArray(latLngs[0])) {
-                // Outer ring is stored as an array in the first element,
-                // use that instead.
-                latLngs = latLngs[0];
+                // Update each measurement of mutiple polylines.
+                for(var i = 0; i < latLngs.length; i++) {
+                    this.updateMeasurements(latLngs[i]);
+                }
+                return this;
             }
 
             var segments = [];
@@ -318,8 +325,6 @@
                     mergedSegments.shift();
                 }
             }
-
-            this._measurementLayer.clearLayers();
 
             if (this._measurementOptions.showDistances && latLngs.length > 1) {
                 formatter = this._measurementOptions.formatDistance || L.bind(this.formatDistance, this);
