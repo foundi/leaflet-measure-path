@@ -385,16 +385,12 @@
         },
 
         _inTolerance: function(angle1, angle2, tolerance) {
-            /**
-             * Check included angle of two segments whether in tolerance.
-             * Use two angles of segments to calc included angle.
-             */
-            // remove direction and convert to positive angle
-            angle1 = angle1 > 0 ? angle1 : 180 - Math.abs(angle1);
-            angle2 = angle2 > 0 ? angle2 : 180 - Math.abs(angle2);
-            return Math.abs(angle2 + angle1) < tolerance || // two internal angles
-                   Math.abs(angle2 - angle1) < tolerance || // one internal and one external angle
-                   Math.abs(180 - Math.abs(angle2 - angle1)) < tolerance; // two external angles
+            // Check included angle of two segments whether in tolerance.
+            var deviation = angle2 - angle1;
+            // normalize to the range (-180, 180]
+            if (deviation > 180) { deviation -= 360; }
+            else if (deviation <= -180) { deviation += 360; }
+            return Math.abs(deviation) < tolerance;
         },
 
         _mergeSegment: function(segment1, segment2) {
@@ -405,7 +401,7 @@
             },
             segment1.ll2 = segment2.ll2,
             segment1.dist += segment2.dist,
-            segment1.angle = segment2.angle,
+            segment1.angle = this._getAngle(segment1.ll1, segment2.ll2),
             segment1.merged = segment1.merged + segment2.merged;
         },
 

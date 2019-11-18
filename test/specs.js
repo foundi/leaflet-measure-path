@@ -29,7 +29,7 @@ describe('leaflet-measure-path', function() {
                     [57.697, 11.88],
                     [57.71, 11.89],
                     [57.71, 11.91],
-                    [57.69, 11.91]
+                    [57.69, 11.91],
                 ]);
                 var latLngs = polygon.getLatLngs();
                 expect(latLngs.length).to.be(1);
@@ -159,7 +159,7 @@ describe('leaflet-measure-path', function() {
                 expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(4);
             })
 
-            it('should merge segments whose angle in small tolerance', function() {
+            it('should merge segments whose negative angle in tolerance', function() {
                 var polygon = L.polygon([
                         // There is three angle in tolernace.
                         [22.722, 120.2121],
@@ -182,6 +182,81 @@ describe('leaflet-measure-path', function() {
 
                 expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(5);
             })
+
+            describe('edge case', function() {
+                it('should not merge segments of one straight line attaching one arc', function() {
+                    var polyline = L.polyline([
+                            // arc
+                            [25.073875, 121.605939],
+                            [25.073871, 121.605918],
+                            [25.073871, 121.605897],
+                            [25.073875, 121.605877],
+                            [25.07388, 121.605858],
+                            [25.073883, 121.605838],
+                            [25.073887, 121.605818],
+                            [25.073889, 121.605798],
+                            [25.073891, 121.605778],
+                            [25.073892, 121.605758],
+                            [25.073893, 121.605738],
+                            [25.073893, 121.605717],
+                            [25.073892, 121.605697],
+                            [25.073891, 121.605677],
+                            [25.07389, 121.605657],
+                            [25.073887, 121.605637],
+                            [25.073884, 121.605617],
+                            [25.07388, 121.605597],
+                            [25.073876, 121.605578],
+                            [25.073871, 121.605558],
+                            [25.073866, 121.605539],
+                            [25.07386, 121.60552],
+                            [25.073853, 121.605501],
+                            // straight line
+                            [25.073912, 121.605341],
+                            [25.073929, 121.605301],
+                        ],
+                        {
+                            showMeasurements: true,
+                            measurementOptions: {
+                                minPixelDistance: 0,
+                                angleTolerance: 30
+                            }
+                        })
+                        .addTo(map);
+
+                    expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(2);
+                })
+
+                it('should merge segments of two straight line attaching one arc', function() {
+                    var polyline = L.polyline([
+                            // straight line
+                            [25.073101, 121.606574],
+                            [25.07322, 121.606325],
+                            // arc
+                            [25.073225, 121.606322],
+                            [25.073229, 121.60632],
+                            [25.073233, 121.606317],
+                            [25.073238, 121.606316],
+                            [25.073242, 121.606314],
+                            [25.073247, 121.606313],
+                            [25.073252, 121.606312],
+                            [25.073257, 121.606312],
+                            [25.073262, 121.606312],
+                            // straight line
+                            [25.073266, 121.606313],
+                            [25.073395, 121.606318],
+                        ],
+                        {
+                            showMeasurements: true,
+                            measurementOptions: {
+                                minPixelDistance: 0,
+                                angleTolerance: 30
+                            }
+                        })
+                        .addTo(map);
+
+                    expect(document.querySelectorAll('.leaflet-measure-path-measurement').length).to.be(4);
+                })
+            });
         });
 
         it('should add measurements', function() {
@@ -220,12 +295,12 @@ describe('leaflet-measure-path', function() {
                 L.latLng([57.697, 11.88]),
                 L.latLng([57.71, 11.89]),
                 L.latLng([57.71, 11.91]),
-                L.latLng([57.69, 11.91])
+                L.latLng([57.69, 11.91]),
             ];
             polygon.updateMeasurements();
             var measurements=document.querySelectorAll('.leaflet-measure-path-measurement');
             expect(measurements.length).to.be(6);
-            expect(measurements[5].style.transform).to.be('translate3d(706px, 50px, 0px) rotate(0rad)');
+            expect(measurements[5].style.transform).to.be('translate3d(482px, 50px, 0px) rotate(0rad)');
         });
 
         it('should update measurements with latlngs of mutiple polygons', function() {
@@ -235,7 +310,7 @@ describe('leaflet-measure-path', function() {
                      [57.71, 11.89]],
                     [[58.69, 11.89],
                      [58.697, 11.88],
-                     [58.71, 11.89]]
+                     [58.71, 11.89]],
                 ], {showMeasurements: true, measurementOptions: { minPixelDistance: 0 }})
                 .addTo(map);
 
