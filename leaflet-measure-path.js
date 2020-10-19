@@ -326,6 +326,32 @@
                 }
             }
 
+            // Adjust the order of adding measurements to make sure that the next measurement only overlaps the tail of the previous one.
+            var farLeftSegment = mergedSegments[0];
+            var farLeftIndex = 0;
+            var farRightSegment = mergedSegments[0];
+            var farRightIndex = 0;
+            for (var i = 1; i < mergedSegments.length; i++) {
+                var segment = mergedSegments[i];
+                if (segment.ll1.lng < farLeftSegment.ll1.lng) {
+                    farLeftSegment = segment;
+                    farLeftIndex = i;
+                }
+                if (segment.ll1.lng > farRightSegment.ll1.lng) {
+                    farRightSegment = segment;
+                    farRightIndex = i;
+                }
+            }
+            // Break segemnts into two part, and each part direction is always left to right as text direction.
+            if (farLeftIndex < farRightIndex) {
+                var clockwiseSegments = mergedSegments.slice(farLeftIndex, farRightIndex);
+                var counterclockwiseSegments = mergedSegments.slice(farRightIndex).concat(mergedSegments.slice(0, farLeftIndex));
+            } else {
+                var clockwiseSegments =  mergedSegments.slice(farLeftIndex).concat(mergedSegments.slice(0, farRightIndex));
+                var counterclockwiseSegments = mergedSegments.slice(farRightIndex, farLeftIndex);
+            }
+            var mergedSegments = clockwiseSegments.concat(counterclockwiseSegments.reverse());
+
             if (this._measurementOptions.showDistances && latLngs.length > 1) {
                 formatter = this._measurementOptions.formatDistance || L.bind(this.formatDistance, this);
 
