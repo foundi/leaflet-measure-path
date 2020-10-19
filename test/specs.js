@@ -291,16 +291,21 @@ describe('leaflet-measure-path', function() {
                 .addTo(map);
 
             polygon._latlngs = [
-                L.latLng([57.69, 11.89]),
-                L.latLng([57.697, 11.88]),
-                L.latLng([57.71, 11.89]),
-                L.latLng([57.71, 11.91]),
-                L.latLng([57.69, 11.91]),
+                L.latLng([57.69, 11.89]), // index 2, 979 km
+                L.latLng([57.697, 11.88]), // index 0, 1.6 km, far left
+                L.latLng([57.71, 11.89]), // index 1, 1.2 km
+                L.latLng([57.71, 11.91]), // index 4, 2.2 m, far right
+                L.latLng([57.69, 11.91]), // index 3, 1.2 km
             ];
             polygon.updateMeasurements();
             var measurements=document.querySelectorAll('.leaflet-measure-path-measurement');
             expect(measurements.length).to.be(6);
-            expect(measurements[5].style.transform).to.be('translate3d(482px, 50px, 0px) rotate(0rad)');
+            expect(measurements[0].textContent).to.be('1.6 km');
+            expect(measurements[1].textContent).to.be('1.2 km');
+            expect(measurements[2].textContent).to.be('979 m');
+            expect(measurements[3].textContent).to.be('1.2 km');
+            expect(measurements[4].textContent).to.be('2.2 km');
+            expect(measurements[5].textContent).to.be('3.3 km²');
         });
 
         it('should update measurements with latlngs of mutiple polygons', function() {
